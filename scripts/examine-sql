@@ -13,6 +13,7 @@ import re
 import inspect
 
 package_path = inspect.getfile(inspect.currentframe()) # script filename, may be absolute or relative
+package_path = os.path.realpath(package_path) # resolve symlinks, if any
 script_dir = os.path.dirname(package_path)
 src = os.path.realpath(script_dir + "/../src")
 package_dir = src + "/examine_sql"

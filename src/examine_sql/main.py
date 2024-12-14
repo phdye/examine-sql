@@ -6,7 +6,23 @@ from glob import glob
 
 VERSION = "1.0.0"
 
-USAGE = """Usage:
+USAGE = """
+Examine proc-format's the EXEC SQL pulled out of Pro*C (.pc)
+files in order to format their C source code.  Fundamentally,
+one checks the EXEC SQL to ensure that:
+   - Only SQL a single EXEC SQL statement is extracted per segment
+   - No C code is has been inadvertently extracted
+
+Checker needs to :
+   - Recognize EXEC SQL statements start with 'EXEC ' and end with ';'
+     - EXEC ORACLE statements are also supported
+   - Be able to distinguish between SQL and C code
+
+One does not need to:
+    - Check the EXEC SQL for correctness or formatting
+    - Understand the EXEC SQL or C code
+
+Usage:
     examine-sql [options] [<input_file> ...]
 
 Options:

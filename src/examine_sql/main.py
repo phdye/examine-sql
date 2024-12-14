@@ -73,7 +73,7 @@ def process_files(input_files, format_flag, display_flag):
 
         if format_flag:
             try:
-                os.remove(formatted_output)
+                os.remove(FORMATTED_OUTPUT)
             except OSError:
                 pass
 

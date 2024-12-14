@@ -4,6 +4,8 @@ import shutil
 import subprocess
 from glob import glob
 
+from .clear import clear_console
+
 VERSION = "1.0.0"
 
 USAGE = """
@@ -78,6 +80,7 @@ def process_files(input_files, format_flag, display_flag):
                 continue
 
             for idx, segment in enumerate(sql_files, 1):
+                clear_console()
                 print("Sql: %d of %d" % (idx, len(sql_files)))
                 print("Segment: '%s'\n" % segment)
                 with open(segment, "r") as f:

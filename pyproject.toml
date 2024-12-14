@@ -1,0 +1,36 @@
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "wheel",
+    "build"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "examine-sql"
+version = "1.0.0"
+description = "A tool for processing and examining SQL files."
+readme = "README.md"
+license = { text = "MIT License" }
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
+]
+dependencies = []
+requires-python = ">=3.7"
+keywords = ["sql", "processing", "cli"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+urls = {
+    "Homepage" = "https://github.com/yourusername/examine-sql",
+    "Repository" = "https://github.com/yourusername/examine-sql",
+    "Issues" = "https://github.com/yourusername/examine-sql/issues"
+}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.entry-points.console_scripts]
+examine-sql = "examine_sql.main:main"

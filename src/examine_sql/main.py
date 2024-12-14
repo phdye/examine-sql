@@ -101,23 +101,6 @@ def process_files(input_files, format_flag, display_flag):
 
         idx = navigate("Next source file", input_file, idx)
 
-def navigate(prompt, file, idx):
-
-    action = input(prompt+" [Next] ?  ").strip().lower() or "next"
-
-    if action in ("err", "error", "save"):
-        shutil.copy(file, ERRORS_DIR)
-        action = "next"
-    elif action in ("p", "b", "prev", "prior", "back"):
-        idx -= 1
-    elif action in ("q", "quit", "e", "exit"):
-        exit(0)
-
-    if action == 'next':
-        idx += 1
-
-    return idx
-
 def examine_sql(sql_dir, errors_dir):
     if not os.path.exists(errors_dir):
         os.makedirs(errors_dir)
@@ -140,6 +123,23 @@ def examine_sql(sql_dir, errors_dir):
         with open(segment, "r") as f:
             print(f.read())
         idx = navigate("Action", segment, idx)
+
+def navigate(prompt, file, idx):
+
+    action = input(prompt+" [Next] ?  ").strip().lower() or "next"
+
+    if action in ("err", "error", "save"):
+        shutil.copy(file, ERRORS_DIR)
+        action = "next"
+    elif action in ("p", "b", "prev", "prior", "back"):
+        idx -= 1
+    elif action in ("q", "quit", "e", "exit"):
+        exit(0)
+
+    if action == 'next':
+        idx += 1
+
+    return idx
 
 if __name__ == "__main__":
     main()

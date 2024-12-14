@@ -1,12 +1,13 @@
 import argparse
 import os
+import shutil
 import subprocess
-from pathlib import Path
+from glob import glob
 
 VERSION = "1.0.0"
 
 USAGE = """Usage:
-    examine-sql.py [-f | --format] [-d | --display] [<input_file> ...]
+    examine-sql [options] [<input_file> ...]
 
 Options:
     -f --format    Format the SQL input.
@@ -19,48 +20,58 @@ Examples:
 """
 
 def process_files(input_files, format_flag, display_flag):
-    log_file = Path("errors.txt")
-    formatted_output = Path("debug/formated.pc")
-    sql_dir = Path("debug/sql")
+    log_file = "errors.txt"
+    formatted_output = "debug/formated.pc"
+    sql_dir = "debug/sql"
     counter = 0
 
     for input_file in input_files:
         if format_flag:
-            formatted_output.unlink(missing_ok=True)
+            try:
+                os.remove(formatted_output)
+            except OSError:
+                pass
+
             cmd = [
-                "python", "-m", "proc_format", input_file, str(formatted_output)
+                "python", "-m", "proc_format", input_file, formatted_output
             ]
-            print(f"Running: {' '.join(cmd)}")
+            print("Running: %s" % " ".join(cmd))
             with open(log_file, "w") as log:
-                result = subprocess.run(cmd, env={"PYTHONPATH": str(Path("src").resolve())}, text=True, stderr=log)
-            if result.returncode != 0:
-                print("Error during formatting. See log file for details.")
-                return
+                proc = subprocess.Popen(
+                    cmd, env=dict(os.environ, PYTHONPATH=os.path.abspath("src")), stderr=log
+                )
+                proc.communicate()
+                if proc.returncode != 0:
+                    print("Error during formatting. See log file for details.")
+                    return
 
-        if display_flag and formatted_output.exists():
-            print(formatted_output.read_text())
+        if display_flag and os.path.exists(formatted_output):
+            with open(formatted_output, "r") as f:
+                print(f.read())
 
-        if not (sql_dir / "1").exists():
+        if not os.path.exists(os.path.join(sql_dir, "1")):
             print("*** No EXEC SQL extracted!")
         else:
-            errors_dir = Path("debug/errors")
-            errors_dir.mkdir(parents=True, exist_ok=True)
+            errors_dir = "debug/errors"
+            if not os.path.exists(errors_dir):
+                os.makedirs(errors_dir)
 
-            sql_files = sorted(f for f in sql_dir.iterdir() if f.name.isdigit())
+            sql_files = sorted(glob(os.path.join(sql_dir, "[0-9]*")))
             if not sql_files:
                 print("*** No SQL segments found!")
                 continue
 
             for idx, segment in enumerate(sql_files, 1):
-                print(f"Sql: {idx} of {len(sql_files)}")
-                print(f"Segment: '{segment}'")
-                print(segment.read_text())
+                print("Sql: %d of %d" % (idx, len(sql_files)))
+                print("Segment: '%s'\n" % segment)
+                with open(segment, "r") as f:
+                    print(f.read())
                 action = input("Action [Next]? ").strip().lower() or "next"
-                if action in {"err", "error", "save"}:
-                    (errors_dir / segment.name).write_text(segment.read_text())
-                elif action in {"p", "b", "prev", "prior", "back"}:
+                if action in ("err", "error", "save"):
+                    shutil.copy(segment, errors_dir)
+                elif action in ("p", "b", "prev", "prior", "back"):
                     continue
-                elif action in {"q", "quit", "e", "exit"}:
+                elif action in ("q", "quit", "e", "exit"):
                     exit(0)
 
         counter += 1
@@ -70,8 +81,8 @@ def process_files(input_files, format_flag, display_flag):
 def main():
     parser = argparse.ArgumentParser(
         description="Examine and process SQL files.",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=USAGE,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "-f", "--format", action="store_true", help="Format the SQL input."
@@ -83,7 +94,7 @@ def main():
         "input_files", nargs="*", default=["examples/basic/unformatted.pc"], help="Input files to process."
     )
     parser.add_argument(
-        "--version", action="version", version=f"%(prog)s {VERSION}"
+        "--version", action="version", version="%(prog)s " + VERSION
     )
 
     args = parser.parse_args()

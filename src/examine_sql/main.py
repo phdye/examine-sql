@@ -37,6 +37,28 @@ Examples:
     examine-sql.py -f -d examples/basic/unformatted.pc
 """
 
+def main():
+    parser = argparse.ArgumentParser(
+        description="Examine and process SQL files.",
+        epilog=USAGE,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "-f", "--format", action="store_true", help="Format the SQL input."
+    )
+    parser.add_argument(
+        "-d", "--display", action="store_true", help="Display the output after processing."
+    )
+    parser.add_argument(
+        "input_files", nargs="*", default=["examples/basic/unformatted.pc"], help="Input files to process."
+    )
+    parser.add_argument(
+        "--version", action="version", version="%(prog)s " + VERSION
+    )
+
+    args = parser.parse_args()
+    process_files(args.input_files, args.format, args.display)
+
 def process_files(input_files, format_flag, display_flag):
     log_file = "errors.txt"
     formatted_output = "debug/formated.pc"
@@ -96,28 +118,6 @@ def process_files(input_files, format_flag, display_flag):
         counter += 1
         if counter < len(input_files):
             input("Next source file? ")
-
-def main():
-    parser = argparse.ArgumentParser(
-        description="Examine and process SQL files.",
-        epilog=USAGE,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-    )
-    parser.add_argument(
-        "-f", "--format", action="store_true", help="Format the SQL input."
-    )
-    parser.add_argument(
-        "-d", "--display", action="store_true", help="Display the output after processing."
-    )
-    parser.add_argument(
-        "input_files", nargs="*", default=["examples/basic/unformatted.pc"], help="Input files to process."
-    )
-    parser.add_argument(
-        "--version", action="version", version="%(prog)s " + VERSION
-    )
-
-    args = parser.parse_args()
-    process_files(args.input_files, args.format, args.display)
 
 if __name__ == "__main__":
     main()

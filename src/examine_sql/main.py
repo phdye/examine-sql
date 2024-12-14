@@ -78,7 +78,7 @@ def process_files(input_files, format_flag, display_flag):
                 pass
 
             cmd = [
-                "python", "-m", "proc_format", input_file, FORMATTED_OUTPUT
+                "python3", "-m", "proc_format", input_file, FORMATTED_OUTPUT
             ]
             print("Running: %s" % " ".join(cmd))
             with open(LOG_FILE, "w") as log:

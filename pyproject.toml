@@ -23,14 +23,14 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent"
 ]
-urls = {
-    "Homepage" = "https://github.com/yourusername/examine-sql",
-    "Repository" = "https://github.com/yourusername/examine-sql",
-    "Issues" = "https://github.com/yourusername/examine-sql/issues"
-}
+
+[project.urls]
+Homepage = "https://github.com/yourusername/examine-sql"
+Repository = "https://github.com/yourusername/examine-sql"
+Issues = "https://github.com/yourusername/examine-sql/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.entry-points.console_scripts]
+[project.scripts]
 examine-sql = "examine_sql.main:main"

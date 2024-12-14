@@ -99,8 +99,7 @@ def process_files(input_files, format_flag, display_flag):
         else:
             examine_sql(SQL_DIR, ERRORS_DIR)
 
-        if idx < n_files:
-            idx = navigate("Next source file", input_file, idx)
+        idx = navigate("Next source file", input_file, idx)
 
 def navigate(prompt, file, idx):
 
@@ -140,8 +139,7 @@ def examine_sql(sql_dir, errors_dir):
         print("Segment: '%s'\n" % segment)
         with open(segment, "r") as f:
             print(f.read())
-        if idx < n_files:
-            idx = navigate("Action", segment, idx)
+        idx = navigate("Action", segment, idx)
 
 if __name__ == "__main__":
     main()

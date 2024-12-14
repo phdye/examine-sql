@@ -37,6 +37,11 @@ Examples:
     examine-sql.py -f -d examples/basic/unformatted.pc
 """
 
+LOG_FILE = "errors.txt"
+FORMATTED_OUTPUT = "debug/formated.pc"
+SQL_DIR = "debug/sql"
+ERRORS_DIR = "debug/errors"
+
 def main():
     parser = argparse.ArgumentParser(
         description="Examine and process SQL files.",
@@ -60,12 +65,12 @@ def main():
     process_files(args.input_files, args.format, args.display)
 
 def process_files(input_files, format_flag, display_flag):
-    log_file = "errors.txt"
-    formatted_output = "debug/formated.pc"
-    sql_dir = "debug/sql"
-    counter = 0
 
-    for input_file in input_files:
+    n_files = len(input_files)
+    idx = 0
+    while idx < n_files:
+        input_file = input_files[idx]
+
         if format_flag:
             try:
                 os.remove(formatted_output)
@@ -76,48 +81,67 @@ def process_files(input_files, format_flag, display_flag):
                 "python", "-m", "proc_format", input_file, formatted_output
             ]
             print("Running: %s" % " ".join(cmd))
-            with open(log_file, "w") as log:
+            with open(LOG_FILE, "w") as log:
                 proc = subprocess.Popen(
                     cmd, env=dict(os.environ, PYTHONPATH=os.path.abspath("src")), stderr=log
                 )
                 proc.communicate()
                 if proc.returncode != 0:
-                    print("Error during formatting. See log file for details.")
+                    print("Error during formatting. See log file for details: %s" % LOG_FILE)
                     return
 
         if display_flag and os.path.exists(formatted_output):
-            with open(formatted_output, "r") as f:
+            with open(FORMATTED_OUTPUT, "r") as f:
                 print(f.read())
 
-        if not os.path.exists(os.path.join(sql_dir, "1")):
-            print("*** No EXEC SQL extracted!")
+        if not os.path.exists(os.path.join(SQL_DIR, "1")):
+            print("*** No EXEC SQL extracted -- missing '{}'".format(SQL_DIR))
         else:
-            errors_dir = "debug/errors"
-            if not os.path.exists(errors_dir):
-                os.makedirs(errors_dir)
+            examine_sql(SQL_DIR, ERRORS_DIR)
 
-            sql_files = sorted(glob(os.path.join(sql_dir, "[0-9]*")))
-            if not sql_files:
-                print("*** No SQL segments found!")
-                continue
+        if idx < n_files:
+            idx = navigate("Next source file", input_file, idx)
 
-            for idx, segment in enumerate(sql_files, 1):
-                clear_console()
-                print("Sql: %d of %d" % (idx, len(sql_files)))
-                print("Segment: '%s'\n" % segment)
-                with open(segment, "r") as f:
-                    print(f.read())
-                action = input("Action [Next]? ").strip().lower() or "next"
-                if action in ("err", "error", "save"):
-                    shutil.copy(segment, errors_dir)
-                elif action in ("p", "b", "prev", "prior", "back"):
-                    continue
-                elif action in ("q", "quit", "e", "exit"):
-                    exit(0)
+def navigate(prompt, file, idx):
 
-        counter += 1
-        if counter < len(input_files):
-            input("Next source file? ")
+    action = input(prompt+" [Next] ?  ").strip().lower() or "next"
+
+    if action in ("err", "error", "save"):
+        shutil.copy(file, ERRORS_DIR)
+        action = "next"
+    elif action in ("p", "b", "prev", "prior", "back"):
+        idx -= 1
+    elif action in ("q", "quit", "e", "exit"):
+        exit(0)
+
+    if action == 'next':
+        idx += 1
+
+    return idx
+
+def examine_sql(sql_dir, errors_dir):
+    if not os.path.exists(errors_dir):
+        os.makedirs(errors_dir)
+
+    def get_key(segment):
+        return int(os.path.basename(segment))
+
+    sql_files = sorted(glob(os.path.join(sql_dir, "[0-9]*")), key=get_key)
+    if not sql_files:
+        print("*** No extracted EXEC SQL segments found.")
+        return
+
+    n_files = len(sql_files)
+    idx = 0
+    while idx < n_files:
+        segment = sql_files[idx]
+        clear_console()
+        print("Sql: %d of %d\n" % (idx, n_files))
+        print("Segment: '%s'\n" % segment)
+        with open(segment, "r") as f:
+            print(f.read())
+        if idx < n_files:
+            idx = navigate("Action", segment, idx)
 
 if __name__ == "__main__":
     main()

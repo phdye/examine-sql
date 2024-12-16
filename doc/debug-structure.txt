@@ -1,0 +1,31 @@
+# Debug Directory Structure:
+# -------------------------
+#
+#  0 [exa] proc-format --continue --debug debug/<file-idx>/format unformatted.pc formatted.pc
+#
+#  1 [bth] debug/
+#
+#  2 [exa]   format.log              # <file-ord> <disposition>
+#  3 [exa]   examine.log             # <file-ord> <disposition>
+#
+#  4 [exa]   <file-ord>/
+#  . [fmt]      format/              # Directory with `proc-format` processing files
+#  . [fmt]         transcript.txt    # Transcript of `proc-format` processing
+#  . [fmt]         log.txt           # <segment-ord> <disposition>
+#  . [fmt]         errors.txt        # List of segments with errors, one per line: <segment-ord>
+#  . [fmt]         before.pc         # Original Pro*C content before formatting
+#  . [fmt]         before.c          # C content before formatting
+#  . [fmt]         after.c           # C content after formatting
+#  . [fmt]         after.pc          # Pro*C content after formatting
+#                                 ? TODO: format errors, bad match ? ...
+#  . [fmt]         sql/              # Directory with extracted EXEC SQL segments
+#  . [fmt]            <segment-ord>  # EXEC SQL segment
+#
+#  5 [exa]      examine/             # Directory with `examine-sql` processing files
+#  6 [exa]         transcript.txt    # Transcript of `examine-sql` processing
+#  7 [exa]         log.txt           # <segment-ord> <disposition>
+#  8 [exa]         errors.txt        # List of segments with errors, one per line: <segment-ord>
+#  9 [exa]         sql/              # Directory with extracted EXEC SQL segments
+# 10 [exa]            <segment-ord>  # EXEC SQL segment with error
+#                                    #   symlink ../../format/sql/<segment-ord>
+#                                    # *** this one doesn't seem necessary ...

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-examine-sql script use exclusively for testing examine_sql
+proc-format script use exclusively for testing examine_sql
 from its source tree
 """
 
@@ -10,20 +10,30 @@ import sys
 import os
 import re
 
+from importlib import import_module
+
 import inspect
 
 package_path = inspect.getfile(inspect.currentframe()) # script filename, may be absolute or relative
 package_path = os.path.realpath(package_path) # resolve symlinks, if any
+
+# <package-root>/scripts/<script-name> where <script-name>.replace('-', '_') is <package-name>
+
+script_name = os.path.basename(package_path)
+
+package_name = script_name.replace('-','_')
+
 script_dir = os.path.dirname(package_path)
-src = os.path.realpath(script_dir + "/../src")
-package_dir = src + "/examine_sql"
+src = os.path.realpath(os.path.join(script_dir, '..', 'src'))
+
+package_dir = os.path.join(src, package_name)
 
 if not os.path.exists(package_dir):
     raise ValueError("Package directory does not exist:  '{}'".format(package_dir))
     
 sys.path.insert(0, src)
 
-from examine_sql.main import main
+main = getattr(import_module(package_name), 'main')
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw|\.exe)?$', '', sys.argv[0])
